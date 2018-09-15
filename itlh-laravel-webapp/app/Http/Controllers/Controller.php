@@ -33,14 +33,38 @@ class Controller extends BaseController
     public function processTransaction(Request $data)
     {
         $data = $data->all();
-        
-        $transaction = new Transaction();
-        $transaction->from = $data['from'];
-        $transaction->to = $data['to'];
-        $transaction->amount = $data['amount'];
-        $transaction->save();
 
-        dd("added successfully");
+        $accountFrom = new Account();
+        $accountFrom = $accountFrom->where('id',$data['from'])->get();
+        $accountFrom = $accountFrom[0];
+
+        if($accountFrom->balance >= $data['amount'])
+        {            
+            $accountFrom->balance = $accountFrom->balance - $data['amount']; 
+            $accountFrom->save();
+
+            $accountTo = new Account();
+            $accountTo = $accountTo->where('id',$data['to'])->get();
+            $accountTo = $accountTo[0];
+            $accountTo->balance = $accountTo->balance + $data['amount'];
+            $accountTo->save();
+
+            $transaction = new Transaction();
+            $transaction->from = $data['from'];
+            $transaction->to = $data['to'];
+            $transaction->amount = $data['amount'];
+            $transaction->save();
+
+        }
+        else
+        {
+           // $message = ["message" => "insufficent funds, Transaction Cancelled!"];
+            return redirect('home');//->with($message);    
+        }
+        
+
+
+        return redirect('home');
     }
 
     public function showAllAccounts()
@@ -93,4 +117,27 @@ class Controller extends BaseController
     {
         return view('addAccount')->with('userId',$userId);
     }
+
+
+    public function createTransaction()
+    {
+        $loggedInUser = Auth::user();
+        $accounts = $loggedInUser->account;
+        $accountArray = $accounts->all();
+
+        $allAccounts = new Account();
+        $allAccounts = $allAccounts->all();
+        $allAccountsArray=[];
+        
+        foreach ($allAccounts as $account) {
+          array_push($allAccountsArray,$account);
+        }
+
+        $notMyAccountsArray = array_diff($allAccountsArray,$accountArray);
+
+        return view('createTransaction')->with('accountArray',$accountArray)
+        ->with('notMyAccountsArray',$notMyAccountsArray);
+    }
+
+
 }

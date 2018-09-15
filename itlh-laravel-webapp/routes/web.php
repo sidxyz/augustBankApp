@@ -33,9 +33,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 // Route::get('/addAccount', function () {
 //     return view('addAccount');
 // });
-Route::get('/createTransaction', function () {
-    return view('createTransaction');
-});
+Route::get('/createTransaction','Controller@createTransaction');
 
 Route::post('/processAccount', 'Controller@processAccount');
 Route::post('/processTransaction', 'Controller@processTransaction');
