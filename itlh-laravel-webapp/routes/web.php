@@ -43,3 +43,5 @@ Route::get('/showAccounts', 'Controller@showAllAccounts');
 Route::get('/showUsers', 'Controller@showUsers')->middleware('auth');
 
 Route::get('/addAccount/{userId}', 'Controller@addAccount');
+
+Route::get('/passbook', 'Controller@showPassbook');

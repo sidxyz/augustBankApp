@@ -33,7 +33,7 @@ class Controller extends BaseController
     public function processTransaction(Request $data)
     {
         $data = $data->all();
-
+        $loggedInUser = Auth::user();
         $accountFrom = new Account();
         $accountFrom = $accountFrom->where('id',$data['from'])->get();
         $accountFrom = $accountFrom[0];
@@ -53,6 +53,7 @@ class Controller extends BaseController
             $transaction->from = $data['from'];
             $transaction->to = $data['to'];
             $transaction->amount = $data['amount'];
+            $transaction->user_id = $loggedInUser->id;
             $transaction->save();
 
         }
@@ -137,6 +138,20 @@ class Controller extends BaseController
 
         return view('createTransaction')->with('accountArray',$accountArray)
         ->with('notMyAccountsArray',$notMyAccountsArray);
+    }
+
+
+    public function showPassbook()
+    {
+        $loggedInUser = Auth::user();
+        // $userId = $loggedInUser->id;
+        // $transactions = new Transaction();
+        // //dd($userId);
+        // $transactions = $transactions->where('user_id',$userId)->get();
+        // $transactionArray =$transactions->all();
+        $transactionList = $loggedInUser->transaction;
+        $transactionArray = $transactionList->all();
+        return view('passbook')->with('transactionArray',$transactionArray);
     }
 
 
